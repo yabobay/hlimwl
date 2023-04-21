@@ -14,12 +14,21 @@ for browser in browsers:
         from re import search
         # TODO: read some firefox config and get the profile name that
         # way instead
-        profileName = [
-            x for x in
-            os.listdir(os.path.expanduser('~/.mozilla/firefox/'))
-            if search('default-release', x)
-        ] [0]
-        word += (profileName, None, 'none')
+        try:
+            profileName = [
+                x for x in
+                os.listdir(os.path.expanduser('~/.mozilla/firefox/'))
+                if search('default-release', x)
+            ] [0]
+            word += (profileName, None, 'none')
+        except FileNotFoundError:
+            # happens when we don't have firefox. TODO: account for
+            # windows and flatpak.
+            continue
+    elif browser == 'safari':
+        from sys import platform
+        if platform != "darwin":
+            continue
     try:
         ytdl = YoutubeDL ({
             'quiet': True,
@@ -29,11 +38,7 @@ for browser in browsers:
         })
         break
     except FileNotFoundError:
-        exit()
         pass
-
-def prettyTime(secs):
-    return str(timedelta(seconds=secs))
 
 def duration(video): # can be playlist also
     vid = ytdl.extract_info(video, download=False)
@@ -49,11 +54,14 @@ def duration(video): # can be playlist also
                 pass
     return dur
 
-def prettyDuration(video): # can be playlist also
-    return prettyTime(duration(video))
-
-print(
-    "Your Watch Later playlist is",
-    prettyDuration(':ytwatchlater'),
-    "long."
-)
+try:
+    length = duration(':ytwatchlater')
+    plength = str(timedelta(seconds=length))
+    message = f"Your Watch Later playlist is {plength} long."
+    if length > 36000:
+        message += " Yikes!"
+    print(message)
+except NameError:
+    print("No browser found :(",
+          "You need to login to YouTube in some web browser.",
+          sep="\n")
