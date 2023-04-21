@@ -1,6 +1,8 @@
 from yt_dlp import YoutubeDL
 from datetime import timedelta
 
+print("Please wait...")
+
 # try and find cookies from *some* browser so we can use them for
 # authentication. also make a YoutubeDL object whatever
 browsers = 'firefox', 'brave', 'opera', 'vivaldi', 'safari', 'edge', 'chromium', 'chrome'
@@ -49,8 +51,6 @@ def duration(video): # can be playlist also
 
 def prettyDuration(video): # can be playlist also
     return prettyTime(duration(video))
-
-print("Please wait...")
 
 print(
     "Your Watch Later playlist is",
