@@ -7,7 +7,7 @@ print("Please wait...")
 # authentication. also make a YoutubeDL object whatever
 browsers = 'firefox', 'brave', 'opera', 'vivaldi', 'safari', 'edge', 'chromium', 'chrome'
 for browser in browsers:
-    word = (browser, )
+    browserTuple = (browser, )
     if browser == 'firefox':
         # this is unreliable & BS but it "works"
         import os
@@ -20,7 +20,7 @@ for browser in browsers:
                 os.listdir(os.path.expanduser('~/.mozilla/firefox/'))
                 if search('default-release', x)
             ] [0]
-            word += (profileName, None, 'none')
+            browserTuple += (profileName, None, 'none')
         except FileNotFoundError:
             # happens when we don't have firefox. TODO: account for
             # windows and flatpak.
@@ -34,7 +34,7 @@ for browser in browsers:
             'quiet': True,
             'no_warnings': True,
             'extract_flat': 'in_playlist',
-            'cookiesfrombrowser': word
+            'cookiesfrombrowser': browserTuple
         })
         break
     except FileNotFoundError:
@@ -58,7 +58,7 @@ try:
     length = duration(':ytwatchlater')
     plength = str(timedelta(seconds=length))
     message = f"Your Watch Later playlist is {plength} long."
-    if length > 36000:
+    if length > 36000: # 10 hours
         message += " Yikes!"
     print(message)
 except NameError:
