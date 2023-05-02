@@ -1,7 +1,7 @@
 from datetime import timedelta
 from ytdl_object import ytdl
-
-print("Please wait...")
+import argparse
+from sys import argv
 
 def duration(video): # can be playlist also
     vid = ytdl.extract_info(video, download=False)
@@ -17,14 +17,26 @@ def duration(video): # can be playlist also
                 pass
     return dur
 
-try:
-    length = duration(':ytwatchlater')
-    plength = str(timedelta(seconds=length))
-    message = f"Your Watch Later playlist is {plength} long."
-    if length > 36000: # 10 hours
-        message += " Yikes!"
-    print(message)
-except NameError:
-    print("No browser found :(",
-          "You need to login to YouTube in some web browser.",
-          sep="\n")
+def printPlaylistDuration(playlist=':ytwatchlater'):
+    try:
+        length = duration(playlist)
+        plength = str(timedelta(seconds=length))
+        message = f"Your Watch Later playlist is {plength} long."
+        if length > 36000: # 10 hours
+            message += " Yikes!"
+        print(message)
+    except NameError:
+        print("No browser found :(",
+              "You need to login to YouTube in some web browser.",
+              sep="\n")
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='HLIMWL',
+                                     description='How Long Is My Watch Later?')
+    parser.add_argument('playlist',
+                        help='check the length of any playlist')
+    if len(argv[1:]) == 0:
+        printPlaylistDuration()
+    else:
+        args = parser.parse_args()
+        printPlaylistDuration(args.playlist)
