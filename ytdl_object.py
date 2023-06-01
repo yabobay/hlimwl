@@ -27,14 +27,11 @@ def makeYtdlObject(verbose=False):
             from sys import platform
             if platform != "darwin":
                 continue
-        try:
-            ytdl = YoutubeDL ({
-                'quiet': not verbose,
-                'no_warnings': True,
-                'extract_flat': 'in_playlist',
-                'cookiesfrombrowser': browserTuple
-            })
-            return ytdl
-            break
-        except FileNotFoundError:
-            pass
+        ytdl = YoutubeDL ({
+            'quiet': not verbose,
+            'no_warnings': True,
+            'extract_flat': 'in_playlist',
+            'cookiesfrombrowser': browserTuple
+        })
+        return ytdl
+        break
