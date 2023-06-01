@@ -6,17 +6,14 @@ from sys import argv
 def main():
     parser = argparse.ArgumentParser(prog='HLIMWL',
                                      description='How Long Is My Watch Later?')
-    parser.add_argument('playlist',
-                        help='check the length of any playlist',
-                        nargs='*', default=':ytwatchlater')
+    parser.add_argument('-p', help='playlist to check the length of',
+                        metavar='playlist', default=':ytwatchlater',
+                        required=False)
     parser.add_argument('-v', help='verbose mode', action='store_true')
     args = parser.parse_args()
     global ytdl # this script is garbage
     ytdl = ytdl_object.makeYtdlObject(args.v)
-    if len(argv[1:]) == 0:
-        printPlaylistDuration()
-    else:
-        printPlaylistDuration(args.playlist)
+    printPlaylistDuration(args.p)
 
 def duration(video): # can be playlist also
     物件 = {} # it means object
@@ -37,7 +34,7 @@ def duration(video): # can be playlist also
     物件['duration'] = dur
     return 物件
 
-def printPlaylistDuration(playlist=':ytwatchlater'):
+def printPlaylistDuration(playlist):
     try:
         pl = duration(playlist)
         length = pl['duration']
