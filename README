@@ -1,0 +1,19 @@
+                             === NOPE ===
+
+I ain't doin it!
+
+This project is fully "put on hold" (cancelled). The Google API sucks,
+and its documentation just makes matters worse. It was fine enough
+until it got to the point where i had to work with OAuth. It's too
+complicated. Thanks Google!
+
+You can still use this to get the duration of a public YouTube
+playlist, but i'm not gonna try to make getting the duration of your
+actual Watch Later work. I've laid out everything else, you can try
+doing that yourself if you really want to. If you do that, maybe
+submit a patch! :)
+
+As for me, maybe at some point if i really want to i'll make this into
+a browser extension that just reads the content of the page. That way
+i won't have to mess with APIs and API keys and all that crap. I dunno
+why i didn't think of that earlier.

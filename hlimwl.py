@@ -7,12 +7,12 @@ from progress.spinner import Spinner
 
 # it's pretty hard to make an empty playlist on purpose, and even if
 # you did, you're probably not trying to measure it's duration. so if
-# we get this, it means there's probably something wrong with the
-# playlist.
+# we get this error, it means there's probably something wrong with
+# the playlist. (i.e. it's private)
 class EmptyPlaylistError(Exception): pass
+class InvalidYouTubeURLError(Exception): pass
 
 def videoLength(video_id):
-    # TODO: add converting from URL
     length = youtube\
         .videos().list(part='contentDetails', id=video_id).execute()\
         ['items'][0]['contentDetails']['duration']
@@ -59,14 +59,50 @@ def formatTime(seconds):
         s = f"{days} days, {s}"
     return s
 
+def parseURL(url):
+    import urllib.parse
+    parsed = urllib.parse.urlparse(url)
+    query = urllib.parse.parse_qs(parsed.query)
+    match parsed.path:
+        case "/playlist":
+            return {"type": "playlist", "id": query['list'][0]}
+        case "/watch":
+            return {"type": "video", "id": query['v'][0]}
+        case _:
+            raise InvalidYouTubeURLError
+
+def magicGetLength(url):
+    stuff = parseURL(url)
+    funcs = {"playlist": lambda x: playlistLength(x),
+             "video": lambda x: videoLength(x)}
+    return funcs[stuff["type"]](stuff["id"])
+
 loud = __name__ == "__main__"
 
 _key = 'AIzaSyBozcYO6eF75fXGXVpGD_-DfzgmwI7wa8o'
 youtube = build('youtube', 'v3', developerKey=_key)
 
 if __name__ == "__main__":
+    import argparse
+    from sys import argv, exit
+    if len(argv) < 2: argv.append("-h") 
+    parser = argparse.ArgumentParser(prog="How Long Is My Watch Later?",
+                                     description="Name is a misnomer, this program cannot actually get the length of your watch later. But at least it can get the length of other playlists!",
+                                     epilog="Available on https://gitea.com/yabobay/hlimwl. Thank you! :)")
+    parser.add_argument("url", help="playlist or video to measure")
+    parser.add_argument("-q", "--quiet", help="only print length", action='store_true')
+    parser.add_argument("-s", "--seconds", help="don't format timestamp (implies -q)", action='store_true')
+    args = parser.parse_args()
     try:
-        print(formatTime(playlistLength('WL')))
+        useSeconds = args.seconds
+        loud = not(useSeconds or args.quiet)
+        seconds = magicGetLength(args.url)
+        if useSeconds:
+            print(seconds)
+        else:
+            print(formatTime(seconds))
+    except InvalidYouTubeURLError:
+        print("That doesn't look like a valid video or playlist URL. :/")
     except EmptyPlaylistError:
         print("Empty Playlist!\nMaybe the playlist is private?")
 
