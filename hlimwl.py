@@ -13,12 +13,16 @@ class EmptyPlaylistError(Exception): pass
 class InvalidYouTubeURLError(Exception): pass
 
 def videoLength(video_id):
-    length = youtube\
-        .videos().list(part='contentDetails', id=video_id).execute()\
-        ['items'][0]['contentDetails']['duration']
-    conversions = {"D": 86400, "H": 3600, "M": 60, "S": 1}
-    return sum([int(i[:-1]) * conversions[i[-1]]
-                for i in re.compile(r"\d+[DHMS]").findall(length)])
+    try:
+        length = youtube\
+            .videos().list(part='contentDetails', id=video_id).execute()\
+            ['items'][0]['contentDetails']['duration']
+        conversions = {"D": 86400, "H": 3600, "M": 60, "S": 1}
+        return sum([int(i[:-1]) * conversions[i[-1]]
+                    for i in re.compile(r"\d+[DHMS]").findall(length)])
+    except IndexError:
+        # probably a private or deleted video?
+        return 0;
 
 def playlistVids(playlist_id):
     if loud: spinner = Spinner("Counting vids... ")
