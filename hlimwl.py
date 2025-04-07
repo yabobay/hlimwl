@@ -20,50 +20,50 @@ def main():
     printPlaylistDuration(args.p)
 
 def duration(video): # can be playlist also
-    物件 = {} # it means object
+    obj = {}
     vid = ytdl.extract_info(video, download=False)
     if 'duration' in vid.keys(): # its a single video
-        物件['type'] = 'video'
+        obj['type'] = 'video'
         dur = vid['duration']
     elif 'entries' in vid.keys(): # it's a playlist
-        物件['type'] = 'playlist'
-        物件['videos'] = len(vid['entries'])
-        物件['max_dur'] = 0
-        物件['channel_count'] = 0
-        物件['channel_dur'] = 0
+        obj['type'] = 'playlist'
+        obj['videos'] = len(vid['entries'])
+        obj['max_dur'] = 0
+        obj['channel_count'] = 0
+        obj['channel_dur'] = 0
         dur = 0
         for i in vid['entries']:
             try:
                 if args.channel != None and args.channel in [i['channel'], i['channel_id'], i['channel_url']]:
                     print(i['title'])
-                    物件['channel_count'] += 1
-                    物件['channel_dur'] += i['duration']
+                    obj['channel_count'] += 1
+                    obj['channel_dur'] += i['duration']
                 dur += i['duration']
-                if i['duration'] > 物件['max_dur']:
-                    物件['max_dur'] = i['duration']
-                    物件['max_title'] = i['title']
+                if i['duration'] > obj['max_dur']:
+                    obj['max_dur'] = i['duration']
+                    obj['max_title'] = i['title']
             except TypeError:
                 # its a private video i guess :P
                 pass
-            物件['duration'] = dur
-    return 物件
+            obj['duration'] = dur
+    return obj
 
 def formatSeconds(sec):
     return str(timedelta(seconds=sec))
 
 def printPlaylistDuration(playlist):
-    pl = duration(playlist)
-    length = pl['duration']
-    pvideos = pl['videos']
+    obj = duration(playlist)
+    length = obj['duration']
+    pvideos = obj['videos']
     plength = formatSeconds(length)
     message = f"Your playlist contains {pvideos} videos and is {plength} long."
     if length > 36000: # 10 hours
         message += " Yikes!"
     print(message)
     if (args.longest):
-        print(f"The longest video was «{pl['max_title']}» at {formatSeconds(pl['max_dur'])}")
+        print(f"The longest video was «{obj['max_title']}» at {formatSeconds(obj['max_dur'])}")
     if (args.channel != None):
-        print(f"The {pl['channel_count']} videos from {args.channel} amount to {formatSeconds(pl['channel_dur'])}.")
+        print(f"The {obj['channel_count']} videos from {args.channel} amount to {formatSeconds(obj['channel_dur'])}.")
 
 if __name__ == '__main__':
     main()
