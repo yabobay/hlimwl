@@ -1,6 +1,7 @@
 from datetime import timedelta
 import ytdl_object
 import argparse
+from rich.console import Console
 from sys import argv
 
 def main():
@@ -12,7 +13,8 @@ def main():
     parser.add_argument('-v', help='verbose mode', action='store_true')
     parser.add_argument('--longest', help='also print the longest video', action='store_true')
     parser.add_argument('-c', '--channel', help='print all videos from this channel', action='store', required=False)
-    global args, ytdl # this script is garbage
+    global args, ytdl, console # this script is garbage
+    console = Console(highlight=False)
     args = parser.parse_args()
     ytdl = ytdl_object.makeYtdlObject(args.v)
     if args.channel != None:
@@ -35,7 +37,7 @@ def duration(video): # can be playlist also
         for i in vid['entries']:
             try:
                 if args.channel != None and args.channel in [i['channel'], i['channel_id'], i['channel_url']]:
-                    print(i['title'])
+                    console.print(f"[italic]{i['title']}[/]")
                     obj['channel_count'] += 1
                     obj['channel_dur'] += i['duration']
                 dur += i['duration']
@@ -61,7 +63,7 @@ def printPlaylistDuration(playlist):
         message += " Yikes!"
     print(message)
     if (args.longest):
-        print(f"The longest video was «{obj['max_title']}» at {formatSeconds(obj['max_dur'])}")
+        console.print(f"The longest video was [italic]{obj['max_title']}[/] at {formatSeconds(obj['max_dur'])}")
     if (args.channel != None):
         print(f"The {obj['channel_count']} videos from {args.channel} amount to {formatSeconds(obj['channel_dur'])}.")
 
