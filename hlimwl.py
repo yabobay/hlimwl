@@ -13,10 +13,11 @@ def main():
     parser.add_argument('-v', help='verbose mode', action='store_true')
     parser.add_argument('--longest', help='also print the longest video', action='store_true')
     parser.add_argument('-c', '--channel', help='print all videos from this channel', action='store', required=False)
+    parser.add_argument('-C', '--cookie', help='cookie file you can get from your browser', action='store', required=False) # 🍪🍪🍪
     global args, ytdl, console # this script is garbage
     console = Console(highlight=False)
     args = parser.parse_args()
-    ytdl = ytdl_object.makeYtdlObject(args.v)
+    ytdl = ytdl_object.makeYtdlObject(verbose=args.v, cookie=args.cookie)
     if args.channel != None:
         print(f'Printing all videos from channel: {args.channel}')
     printPlaylistDuration(args.p)
@@ -36,7 +37,7 @@ def duration(video): # can be playlist also
         dur = 0
         for i in vid['entries']:
             try:
-                if args.channel != None and args.channel in [i['channel'], i['channel_id'], i['channel_url']]:
+                if args.channel != None and args.channel in [i['channel_id'], i['channel_url']] or caseInsensitiveStringComparison(args.channel, i['channel']):
                     console.print(f"[italic]{i['title']}[/]")
                     obj['channel_count'] += 1
                     obj['channel_dur'] += i['duration']
@@ -49,6 +50,12 @@ def duration(video): # can be playlist also
                 pass
             obj['duration'] = dur
     return obj
+
+def caseInsensitiveStringComparison(a, b):
+    try:
+        return a.lower() == b.lower()
+    except AttributeError:
+        return False
 
 def formatSeconds(sec):
     return str(timedelta(seconds=sec))
