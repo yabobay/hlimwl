@@ -1,16 +1,10 @@
-from datetime import timedelta
-import ytdl_object
 import argparse
-from rich.console import Console
-from sys import argv
-from math import floor
 
 def main():
+    from rich.console import Console
     parser = argparse.ArgumentParser(prog='HLIMWL',
                                      description='How Long Is My Watch Later?')
-    parser.add_argument('-p', help='playlist to check the length of',
-                        metavar='PLAYLIST', default=':ytwatchlater',
-                        required=False)
+    parser.add_argument('-p', help='playlist to check the length of', metavar='PLAYLIST', default=':ytwatchlater', required=False)
     parser.add_argument('-v', help='verbose mode', action='store_true')
     parser.add_argument('--longest', help='print the longest video', action='store_true')
     parser.add_argument('--average', '--avg', help='print the average length', action='store_true')
@@ -19,10 +13,27 @@ def main():
     global args, ytdl, console # this script is garbage
     console = Console(highlight=False)
     args = parser.parse_args()
-    ytdl = ytdl_object.makeYtdlObject(verbose=args.v, cookie=args.cookie)
+    ytdl = makeYtdlObject(verbose=args.v, cookie=args.cookie)
     if args.channel != None:
         print(f'Printing all videos from channel: {args.channel}')
     printPlaylistDuration(args.p)
+
+def makeYtdlObject(**kwargs):
+    from yt_dlp import YoutubeDL
+    import os.path
+    verbose = kwargs.pop('verbose', False)
+    cookie = kwargs.pop('cookie')
+    if cookie == None:
+        defaultCookiePath = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+        if os.path.isfile(defaultCookiePath):
+            cookie = defaultCookiePath
+    ytdl_keys = {
+        'quiet': not verbose,
+        'no_warnings': True,
+        'extract_flat': 'in_playlist',
+        'cookiefile': cookie
+    }
+    return YoutubeDL(ytdl_keys)
 
 def duration(video): # can be playlist also
     obj = {}
@@ -61,6 +72,8 @@ def caseInsensitiveStringComparison(a, b):
         return False
 
 def formatSeconds(sec):
+    from datetime import timedelta
+    from math import floor
     return str(timedelta(seconds=floor(sec)))
 
 def printPlaylistDuration(playlist):
