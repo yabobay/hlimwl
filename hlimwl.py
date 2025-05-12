@@ -90,7 +90,10 @@ def printPlaylistDuration(playlist):
     if (args.average):
         console.print(f"The average length of a video {formatSeconds(obj['average'])}.")
     if (args.channel != None):
-        print(f"The {obj['channel_count']} videos from {args.channel} amount to {formatSeconds(obj['channel_dur'])}.")
+        if obj['channel_count'] > 0:
+            console.print(f"The {obj['channel_count']} videos from [italic]{args.channel}[/] amount to {formatSeconds(obj['channel_dur'])}.")
+        else:
+            console.print(f"There are 0 videos from [italic]{args.channel}[/].")
 
 if __name__ == '__main__':
     main()
