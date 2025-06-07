@@ -50,7 +50,7 @@ def duration(video): # can be playlist also
         obj['duration'] = 0
         for i in vid['entries']:
             try:
-                if args.channel != None and args.channel in [i['channel_id'], i['channel_url']] or caseInsensitiveStringComparison(args.channel, i['channel']):
+                if args.channel != None and args.channel in [i['channel_id'], i['channel_url'], i['uploader_id']] or caseInsensitiveStringComparison(args.channel, i['channel']):
                     console.print(f"[italic]{i['title']}[/]")
                     obj['channel_count'] += 1
                     obj['channel_dur'] += i['duration']
