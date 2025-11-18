@@ -88,7 +88,7 @@ def printPlaylistDuration(playlist):
     if (args.longest):
         console.print(f"The longest video is [italic]{obj['max_title']}[/] at {formatSeconds(obj['max_dur'])}")
     if (args.average):
-        console.print(f"The average length of a video {formatSeconds(obj['average'])}.")
+        console.print(f"The average length of a video is {formatSeconds(obj['average'])}.")
     if (args.channel != None):
         if obj['channel_count'] > 0:
             console.print(f"The {obj['channel_count']} videos from [italic]{args.channel}[/] amount to {formatSeconds(obj['channel_dur'])}.")
