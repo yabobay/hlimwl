@@ -1,6 +1,9 @@
 import argparse
 
+args = None
+
 def main():
+    global args
     from rich.console import Console
     parser = argparse.ArgumentParser(prog='HLIMWL',
                                      description='How Long Is My Watch Later?')
@@ -8,6 +11,7 @@ def main():
     parser.add_argument('-v', help='verbose mode', action='store_true')
     parser.add_argument('--longest', help='print the longest video', action='store_true')
     parser.add_argument('--average', '--avg', help='print the average length', action='store_true')
+    parser.add_argument('-s', '--skip', help="don't count the first N videos", action='store', type=int, default=0)
     parser.add_argument('-c', '--channel', help='print all videos from this channel', action='store', required=False)
     parser.add_argument('-C', '--cookie', help='cookie file you can get from your browser', action='store', required=False) # 🍪🍪🍪
     global args, ytdl, console # this script is garbage
@@ -36,6 +40,7 @@ def makeYtdlObject(**kwargs):
     return YoutubeDL(ytdl_keys)
 
 def duration(video): # can be playlist also
+    global args
     obj = {}
     vid = ytdl.extract_info(video, download=False)
     if 'duration' in vid.keys(): # its a single video
@@ -48,7 +53,11 @@ def duration(video): # can be playlist also
         obj['channel_count'] = 0
         obj['channel_dur'] = 0
         obj['duration'] = 0
+        skipped = 0
         for i in vid['entries']:
+            if skipped < args.skip:
+                skipped += 1
+                continue
             try:
                 if args.channel != None and args.channel in [i['channel_id'], i['channel_url'], i['uploader_id']] or caseInsensitiveStringComparison(args.channel, i['channel']):
                     console.print(f"[italic]{i['title']}[/]")
@@ -62,7 +71,7 @@ def duration(video): # can be playlist also
                 # its a private video i guess :P
                 pass
         if obj['videos'] != 0:
-            obj['average'] = obj['duration'] / obj['videos']
+            obj['average'] = obj['duration'] / (obj['videos'] - args.skip)
     return obj
 
 def caseInsensitiveStringComparison(a, b):
@@ -77,15 +86,19 @@ def formatSeconds(sec):
     return str(timedelta(seconds=floor(sec)))
 
 def printPlaylistDuration(playlist):
+    global args
     obj = duration(playlist)
     length = obj['duration']
     pvideos = obj['videos']
     plength = formatSeconds(length)
-    message = f"Your playlist contains {pvideos} videos and is {plength} long."
+    message = f"Your playlist contains {pvideos-args.skip}{f"/{pvideos}" if args.skip > 0 else ''} videos and is {plength} long."
+    if args.skip >= pvideos:
+        print('Congratulations! You skipped everything!')
+        return
     if length > 36000: # 10 hours
         message += " Yikes!"
     print(message)
-    if (args.longest):
+    if (args.longest and 'max_title' in obj):
         console.print(f"The longest video is [italic]{obj['max_title']}[/] at {formatSeconds(obj['max_dur'])}")
     if (args.average):
         console.print(f"The average length of a video is {formatSeconds(obj['average'])}.")
